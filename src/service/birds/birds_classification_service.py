@@ -172,9 +172,8 @@ class BirdClassifier:
         errors: Dict[str, Union[ImageDownloadError, ImageFormatError, ModelInferenceError]] = {}
         data: Dict[str,  List[BirdNameWithScore]] = {}
 
-        # Download the images in parallel
+        # Download the images in parallel to prevent I/O block
         with concurrent.futures.ThreadPoolExecutor() as t_executor:
-            # Start the load operations and mark each future with its URL
             image_and_error_list = t_executor.map(cls.download_image, image_urls)
 
         download_image_end_time = time.time()
