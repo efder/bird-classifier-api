@@ -1,5 +1,4 @@
 import logging
-import os
 from concurrent import futures
 from typing import Dict, List, Union
 
@@ -23,19 +22,18 @@ from src.common.data_objects.birds.model_raw_output_with_url import ModelRawOutp
 from src.common.errors.birds.image_download_error import ImageDownloadError
 from src.common.errors.birds.image_format_error import ImageFormatError
 from src.common.errors.birds.model_inference_error import ModelInferenceError
-
-
-model_url = 'https://tfhub.dev/google/aiy/vision/classifier/birds_V1/1'
-labels_url = 'https://www.gstatic.com/aihub/tfhub/labelmaps/aiy_birds_V1_labelmap.csv'
+from src.config import ConfigManager, Config
 
 
 class BirdClassifier:
-    _bird_labels = None
-    _bird_model = None
-    _logger = None
+    _bird_labels: Dict[int, Dict[str, str]]
+    _bird_model: KerasLayer
+    _logger: logging.Logger
+    _config: Config
 
     @classmethod
     def initialize_bird_classifier(cls) -> None:
+        cls._config = ConfigManager.get_config()
         cls._logger = logging.getLogger(__name__)
         cls._logger.setLevel(logging.DEBUG)
         start_time = time.time()
@@ -48,11 +46,11 @@ class BirdClassifier:
 
     @classmethod
     def _load_model(cls) -> KerasLayer:
-        return hub.KerasLayer(model_url)
+        return hub.KerasLayer(cls._config.MODEL_URL)
 
     @classmethod
     def _load_and_cleanup_labels(cls) -> Dict[int, Dict[str, str]]:
-        bird_labels_raw = urllib.request.urlopen(labels_url)
+        bird_labels_raw = urllib.request.urlopen(cls._config.LABELS_URL)
         bird_labels_lines = [line.decode('utf-8').replace('\n', '') for line in bird_labels_raw.readlines()]
         bird_labels_lines.pop(0)  # remove header (id, name)
         birds = {}
@@ -86,7 +84,7 @@ class BirdClassifier:
     def download_image(cls, url: str) -> Union[ImageArrayWithUrl, ImageDownloadError]:
         # Loading images
         try:
-            image_get_response = requests.get(url, timeout=10)
+            image_get_response = requests.get(url, timeout=cls._config.DOWNLOAD_IMAGE_TIMEOUT)
             if image_get_response.status_code != 200:
                 raise Exception('Image can not been fetched!')
             image_array = np.asarray(bytearray(image_get_response.content), dtype=np.uint8)
@@ -103,12 +101,14 @@ class BirdClassifier:
                          bird_labels: Dict[int, Dict[str, str]]) -> List[BirdNameWithScore]:
         model_raw_output = model_raw_output_with_url.model_raw_output
 
-        # TODO: optimize this part
         # Prevent index out of range
         top_n = min(len(bird_labels), top_n)
 
-        ind = np.argpartition(model_raw_output[0], -top_n)
-        sorted_ind = ind[np.argsort(model_raw_output[0][ind])][::-1][:top_n]
+        # Get the indices of top k birds without order
+        ind = np.argpartition(model_raw_output[0], -top_n)[-top_n:]
+        # Sort these indices by their scores and reverse it to make it descending
+        sorted_ind = ind[np.argsort(model_raw_output[0][ind])][::-1]
+
         res = [
             BirdNameWithScore(bird_name=bird_labels[idx]['name'], score=model_raw_output[0][idx])
             for idx in sorted_ind
@@ -173,7 +173,7 @@ class BirdClassifier:
         data: Dict[str,  List[BirdNameWithScore]] = {}
 
         # Download the images in parallel
-        with concurrent.futures.ThreadPoolExecutor(max_workers=6) as t_executor:
+        with concurrent.futures.ThreadPoolExecutor() as t_executor:
             # Start the load operations and mark each future with its URL
             image_and_error_list = t_executor.map(cls.download_image, image_urls)
 

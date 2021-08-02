@@ -6,6 +6,10 @@ from flask import Flask
 def create_app() -> Flask:
     app = Flask(__name__)
 
+    # Initialize config variable
+    from src.config import ConfigManager
+    ConfigManager.init_config()
+
     # Initialize apis
     from src.api.helpers.api_manager import APIManager
     APIManager(app)
