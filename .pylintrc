@@ -1,0 +1,5 @@
+[FORMAT]
+max-line-length=119
+
+[MESSAGES CONTROL]
+disable=no-name-in-module, too-few-public-methods, no-member, too-many-locals

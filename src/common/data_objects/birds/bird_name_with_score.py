@@ -1,9 +1,13 @@
+# pylint: disable=missing-module-docstring
 import math
 
 from pydantic import BaseModel
 
 
 class BirdNameWithScore(BaseModel):
+    """
+    Basic data object for keeping bird_name and its model score.
+    """
     bird_name: str
     score: float
 

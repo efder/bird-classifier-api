@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring,missing-function-docstring, invalid-name
 import logging
 from http import HTTPStatus
 from typing import Any
@@ -49,6 +50,9 @@ def handle_exception(exception: Exception) -> Response:
 
 
 class ErrorHandler:
+    """
+    Error handler class which is responsible for assigning error_handlers to expected errors at start
+    """
     @classmethod
     def initialize(cls, app: Flask) -> None:
         app.register_error_handler(ValidationError, handle_validation_error)  # type: ignore

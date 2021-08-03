@@ -1,3 +1,7 @@
+"""
+Namespace to keep all bird classification related endpoints.
+"""
+# pylint: disable=no-self-use
 from http import HTTPStatus
 
 from flask import Response, request
@@ -23,10 +27,17 @@ used_schemas = create_schemas(api)
 
 @api.route('')
 class GetBirdsClassification(Resource):
+    """
+    Flask REST resource for serving birds classification results.
+    """
     @api.doc(description="Returns top n classifications for the given bird image urls.")
     @api.expect(*used_schemas, birds_classification_request)
     @api.response(200, 'Birds classification result', birds_classification_response)
     def post(self) -> Response:
+        """
+        POST endpoint for GetBirdsClassification resource
+        :return: Http response
+        """
         data = request.get_json()
         request_dto = BirdsClassificationRequestDto.parse_obj(data)
 

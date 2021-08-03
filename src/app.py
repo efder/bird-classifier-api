@@ -1,25 +1,33 @@
-import logging
-
+"""
+Flask application initialization module
+"""
 from flask import Flask
+
+from src.config import ConfigManager
+from src.api.helpers.api_manager import APIManager
+from src.service.birds.birds_classification_service import BirdClassifier
+from src.api.helpers.error_handler import ErrorHandler
 
 
 def create_app() -> Flask:
+    """
+     Application factory function that is called by flask only one time. That is
+     very useful for initializing configurations and services before application starts.
+
+     :return: None
+    """
     app = Flask(__name__)
 
     # Initialize config variable
-    from src.config import ConfigManager
     ConfigManager.init_config()
 
     # Initialize apis
-    from src.api.helpers.api_manager import APIManager
     APIManager(app)
 
     # Initialize services
-    from src.service.birds.birds_classification_service import BirdClassifier
     BirdClassifier.initialize_bird_classifier()
 
     # Initialize error handler
-    from src.api.helpers.error_handler import ErrorHandler
     ErrorHandler.initialize(app)
 
     return app

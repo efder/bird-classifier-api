@@ -1,5 +1,5 @@
+# pylint: disable=missing-module-docstring, import-error
 import logging
-from concurrent import futures
 from typing import Dict, List, Union
 
 import tensorflow.compat.v2 as tf
@@ -11,8 +11,6 @@ import time
 import requests
 import concurrent.futures
 
-# Getting some unknown linter errors, disable everything to get this to production asap
-# pylint: disable-all
 from tensorflow_hub import KerasLayer
 
 from src.common.data_objects.birds.birds_classification_response_dto import BirdsClassificationResponseDto
@@ -26,6 +24,9 @@ from src.config import ConfigManager, Config
 
 
 class BirdClassifier:
+    """
+    Class which is responsible for bird classification
+    """
     _bird_labels: Dict[int, Dict[str, str]]
     _bird_model: KerasLayer
     _logger: logging.Logger
@@ -33,6 +34,10 @@ class BirdClassifier:
 
     @classmethod
     def initialize_bird_classifier(cls) -> None:
+        """
+        Class initializer method. It is called just once
+        :return: None
+        """
         cls._config = ConfigManager.get_config()
         cls._logger = logging.getLogger(__name__)
         cls._logger.setLevel(logging.DEBUG)

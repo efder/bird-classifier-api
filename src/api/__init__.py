@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from typing import List, Any
 
 from flask_restx import Namespace
@@ -11,6 +12,12 @@ from src.common.errors.birds.model_inference_error import ModelInferenceError
 
 
 def create_schemas(api: Namespace) -> List[Any]:
+    """
+    This method assigns data objects that are used in our namespace with their schemas
+    to make their schemas accessible through Swagger UI.
+    :param api: Flask namespace
+    :return: Schemas
+    """
     return [
         # Value objects
         api.schema_model('BaseError', BaseError.schema()),

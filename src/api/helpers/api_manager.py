@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring, missing-function-docstring
 from typing import Optional
 
 from flask import Flask
@@ -8,6 +9,9 @@ from src.api.controllers.birds.birds_classification_controller import api as bir
 
 
 class APIManager:
+    """
+    API manager which is responsible for managing different namespaces.
+    """
     def __init__(self, app: Flask) -> None:
         self.birds_api: Optional[Api] = None
         self.init_apis(app)
