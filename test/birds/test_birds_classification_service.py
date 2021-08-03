@@ -8,6 +8,7 @@ from src.common.data_objects.birds.bird_name_with_score import BirdNameWithScore
 from src.common.data_objects.birds.birds_classification_response_dto import BirdsClassificationResponseDto
 from src.common.data_objects.birds.image_with_url import ImageArrayWithUrl
 from src.common.errors.birds.image_download_error import ImageDownloadError
+from src.common.errors.birds.image_format_error import ImageFormatError
 from src.config import ConfigManager
 from src.service.birds.birds_classification_service import BirdClassifier
 
@@ -38,7 +39,8 @@ def mock_download_image(url: str) -> Union[ImageArrayWithUrl, ImageDownloadError
     predefined_urls = [
         'bird1.jpeg',
         'bird2.jpeg',
-        'bird3.jpeg'
+        'bird3.jpeg',
+        'not_image.txt'
     ]
 
     # If the given url is not in predefined urls then return an error
@@ -86,5 +88,22 @@ def test_bird_classifier(monkeypatch):
 
     assert expected == result
 
-# TODO: prevent possible floating point error in score
-# TODO: test other errors
+
+def test_bird_classifier_image_format_error(monkeypatch):
+    monkeypatch.setattr(BirdClassifier, '_load_and_cleanup_labels', mock_load_and_cleanup_labels)
+    monkeypatch.setattr(BirdClassifier, '_load_model', mock_load_model)
+    monkeypatch.setattr(BirdClassifier, 'download_image', mock_download_image)
+
+    BirdClassifier.initialize_bird_classifier()
+
+    # Expected result
+    data = {}
+
+    errors = {'not_image.txt': ImageFormatError.from_url('not_image.txt')}
+
+    expected = BirdsClassificationResponseDto(data=data, errors=errors)
+
+    # Result
+    result = BirdClassifier.classify(['not_image.txt'], 3)
+
+    assert expected == result
