@@ -1,51 +1,68 @@
-# Test Task
+# Bird Classifier API
 
-Many photographers have been taking images of birds and wondering what kind of bird it actually is. 
+Many photographers have been taking images of birds and wondering what kind of bird it actually is.
+This API helps its users to find species of given bird images. 
 
-A bunch of data scientists have been working on a model to help them out. 
+## How to run API?
+1. Create a new virtual environment using your favorite solution like virtualenv and conda.
+2. Install requirements to this environment,
+    ```
+   pip install -r requirements.txt 
+   ```
+3. Add following environment variables to your terminal session or IDE,
+    ```
+   PYTHONUNBUFFERED=1
+   FLASK_APP=src/app.py
+   ENVIRONMENT=dev
+   FLASK_ENV=development
+   AUTOGRAPH_VERBOSITY=0
+   TF_CPP_MIN_LOG_LEVEL=3
+   FLASK_RUN_HOST=localhost
+   FLASK_DEBUG=0
+   FLASK_RUN_PORT=5005
+   ```
+   Or you can use env_setter helper file if you are using Mac or Linux.
+   ```
+   source env_setter
+   ```
+4. Run the application,
+    ```
+    flask run
+    ```
 
-While the model\* is performing well a lot of corners were cut to get this model to production\** and the service could certainly use some love from a software engineer.
+There is currently only one endpoint defined in the API,
+```
+birds/api/v1/classification
+```
+You can directly send a request to this endpoint using curl like,
+```
+curl -X 'POST' \
+  'http://localhost:5005/birds/api/v1/classification' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "urls": [
+    "https://upload.wikimedia.org/wikipedia/commons/c/c8/Phalacrocorax_varius_-Waikawa%2C_Marlborough%2C_New_Zealand-8.jpg",
+    "https://quiz.natureid.no/bird/db_media/eBook/679edc606d9a363f775dabf0497d31de8c3d7060.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/8/81/Eumomota_superciliosa.jpg",
+    "https://i.pinimg.com/originals/f3/fb/92/f3fb92afce5ddff09a7370d90d021225.jpg",
+    "https://cdn.britannica.com/77/189277-004-0A3BC3D4.jpg"
+  ],
+  "top_n": 3
+}'
+```
+or you can navigate to http://localhost:5005/birds/api/v1/ endpoint on your browser and use swagger,
+![alt text](readme_images/swagger.png)
 
-Your task is to:
-* Improve service architecture
-* Improve service performance
-* Improve service maintainability, extendability and testability
-
-You can change all parts of the code as you see fit, however:
-* You are not expected to work on ML model performance
-* Model and data have to be fetched online (instead of downloading it to your local machine)
-
-By the end of this task we would like to see, what is a good looking code in your opinion and how much can you optimise latency.
-
-Feel free to play around with the code as much as you like, but in the end we want to see:
-* Your vision of nice code
-* Code running time including images and model downloading and model inference
-* Top 3 results from the model's output per image
-* Proper logging for essential and debug info if necessary
-* Finished work has to be pushed to github and shared with @rivol, @khadrawy, and @suur
-
-Bonus
-* Unit tests with Mocked images and model data (possible to run without internet)
-* Analyse the bottlenecks in your implementation, and report options for improving upon them.
-* Implement your solution using Docker and Kubernetes for the infrastructure layer. The configuration should scale out: adding machines should reduce latency
+You can follow the logs on your terminal,
+![alt text](readme_images/terminal.png)
 
 
-# Local setup
-1) Install Python 3
-2) Install requirements `pip install -r requirements.txt`
-3) Run the code `python classifier.py`
+## How to run tests?
+Use pytest command,
+```
+pytest test/
+```
+![alt text](readme_images/test.png)
 
-gl;hf
-
-\* The model:
-The sample model is taken from Tensorflow Hub:
-https://tfhub.dev/google/aiy/vision/classifier/birds_V1/1
-
-The labels for model outputs can be found here:
-https://www.gstatic.com/aihub/tfhub/labelmaps/aiy_birds_V1_labelmap.csv
-
-The model has been verified to run with TensorFlow 2.
-
-\** Production: The code was deployed as a python service using Docker with Kubernetes for the infrastructure layer.
-
-In case of questions feel free to contact Agu Suur at agu.suur@veriff.net
+If you have any question, please contact me from sarimadenegemen@gmail.com

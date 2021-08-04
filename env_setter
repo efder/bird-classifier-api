@@ -1,0 +1,9 @@
+export PYTHONUNBUFFERED=1
+export FLASK_APP=src/app.py
+export ENVIRONMENT=dev
+export FLASK_ENV=development
+export AUTOGRAPH_VERBOSITY=0
+export TF_CPP_MIN_LOG_LEVEL=3
+export FLASK_RUN_HOST=localhost
+export FLASK_DEBUG=0
+export FLASK_RUN_PORT=5005

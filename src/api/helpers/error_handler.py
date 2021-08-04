@@ -5,7 +5,7 @@ from typing import Any
 
 from flask import Response, Flask
 from pydantic import ValidationError
-
+from werkzeug.exceptions import NotFound
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,15 @@ def handle_validation_error(validation_error: ValidationError) -> Response:
     )
 
 
+def handle_not_found_error(not_found_error: NotFound) -> Response:
+    # Validation errors are caused by invalid input, BadRequest should be returned
+    message = handle_message(not_found_error)
+    return Response(
+        response=message,
+        status=HTTPStatus.NOT_FOUND
+    )
+
+
 def handle_exception(exception: Exception) -> Response:
     # Unhandled exceptions should be returned with InternalServerError
     message = handle_message(exception)
@@ -56,4 +65,5 @@ class ErrorHandler:
     @classmethod
     def initialize(cls, app: Flask) -> None:
         app.register_error_handler(ValidationError, handle_validation_error)  # type: ignore
+        app.register_error_handler(NotFound, handle_not_found_error)  # type: ignore
         app.register_error_handler(Exception, handle_exception)

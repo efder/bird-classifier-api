@@ -109,9 +109,10 @@ class BirdClassifier:
 
         # Loading images
         try:
-            image_get_response = requests.get(url, timeout=cls._config.DOWNLOAD_IMAGE_TIMEOUT)
+            headers = {'User-Agent': 'Bird API v1'}
+            image_get_response = requests.get(url, timeout=cls._config.DOWNLOAD_IMAGE_TIMEOUT, headers=headers)
             if image_get_response.status_code != 200:
-                raise Exception('Image can not been fetched!')
+                raise Exception(f'{image_get_response.status_code}:{image_get_response.content}')
             image_array = np.asarray(bytearray(image_get_response.content), dtype=np.uint8)
             return ImageArrayWithUrl(
                 url=url,
